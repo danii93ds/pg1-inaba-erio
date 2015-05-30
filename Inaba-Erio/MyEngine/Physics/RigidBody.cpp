@@ -11,6 +11,7 @@ using namespace Inaba;
 
 hkpMotion::MotionType _HavokMotionType[RigidBody::HavokMotionCount] =
 {
+	//lol
 	hkpMotion::MOTION_FIXED,
 	hkpMotion::MOTION_DYNAMIC
 };
