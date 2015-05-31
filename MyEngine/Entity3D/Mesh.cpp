@@ -44,13 +44,12 @@ void Mesh::setData(const TextureCoordVertex* Tex_Vertex, size_t vertexCount, Ina
 void Mesh::Draw(Renderer& renderer) 
 {
 	DrawnMeshes++;
-
 	_vertexBuffer3D->bind();
 	_indexBuffer->bind();
 	renderer.setCurrentTexture(NoTexture);
-	renderer.setMatrix(World,_transformationMatrix);
-	
+	renderer.setMatrix(World,_worldTransformationMatrix);
 	renderer.Draw(pPrimitive);
+	
 
 	drawAABB(renderer);
 }

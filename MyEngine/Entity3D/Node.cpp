@@ -38,7 +38,7 @@ void Node::RemoveChild(Entity3D* child)
 
 void Node::UpdateTransformation()
 {
-	//Entity3D::UpdateTransformation();
+	Entity3D::UpdateTransformation();
 	
 	for(std::list<Entity3D*>::iterator iter = childs.begin(); iter != childs.end(); iter++)
 	{
@@ -72,7 +72,7 @@ void Node::UpdateNodeAABB() {
 
 void Node::Update(Timer& timer)
 {
-	
+//	UpdateTransformation();
 }
 
 void Node::Draw(Renderer& r)

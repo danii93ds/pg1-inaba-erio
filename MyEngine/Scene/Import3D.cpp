@@ -65,10 +65,9 @@ bool Import3D::importMesh(aiMesh* myAiMeshes,Scene& scene, Mesh* mesh)
 	}
 
 	mesh->setData(vertices, myAiMeshes->mNumVertices,Inaba::TriangleList,indices,numFaces*3);
-	mesh->setPos(0,0,0);
 	mesh->setName(myAiMeshes->mName.C_Str());
 	
-	scene.AddEntity(mesh);
+	
 
 	delete[] vertices;
 	vertices = NULL;
@@ -121,7 +120,7 @@ bool Import3D::importNode(aiNode* myAiNode,const aiScene* myAiScene, Scene& scen
 
         importNode(myAiNode->mChildren[nChild], myAiScene, scene, *childNode);
 
-		scene.AddEntity(childNode);
+		
 	}
 	
 	for(int nMeshes=0; nMeshes < myAiNode->mNumMeshes ; nMeshes++)

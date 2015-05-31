@@ -47,7 +47,7 @@ bool Scene3D::Init(Inaba::Renderer& renderer)
 	
 
 	//_mesh1->setData(g_8Vertices, 8, Inaba::Primitive::TriangleList, g_indices, 36);
-  	Inaba::Import3D::GetInstance()->importScene("mesh.obj",*this);
+  	Inaba::Import3D::GetInstance()->importScene("tank.x",*this);
 	//Inaba::Import3D::GetInstance()->importMesh(*_mesh1,"cubitScene.obj");
 	//_mesh1->setScale(10,10,10);
 	//_mesh1->setPos(100,100,0);

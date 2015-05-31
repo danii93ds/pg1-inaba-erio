@@ -7,6 +7,7 @@
 #include "../Assimp32/include/Importer.hpp"
 #include "../Assimp32/include/scene.h"
 #include "../Assimp32/include/postprocess.h"
+#include <assert.h>
 
 namespace Inaba
 {	

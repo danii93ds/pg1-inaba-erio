@@ -28,6 +28,7 @@ _worldTransformationMatrix(new D3DXMATRIX()),
 _parent(NULL)
 {
 	D3DXMatrixIdentity(_transformationMatrix);
+	D3DXMatrixIdentity(_worldTransformationMatrix);
 	UpdateLocalTransformation();
 	
 }
@@ -74,21 +75,26 @@ void Entity3D::setScale(float scaleX, float scaleY, float scaleZ)
 
 void Entity3D::UpdateLocalTransformation()
 {
-	D3DXMATRIX translateMatrix;
-	D3DXMatrixTranslation(&translateMatrix,_posX, _posY,_posZ);
+ D3DXMATRIX translateMatrix;
+ D3DXMatrixTranslation(&translateMatrix,_posX, _posY,_posZ);
 
-	D3DXMATRIX rotationMatrix;
-	D3DXMatrixRotationX(&rotationMatrix,_rotX);
-	D3DXMatrixRotationY(&rotationMatrix,_rotY);
-	D3DXMatrixRotationZ(&rotationMatrix, _rotZ);
+ D3DXMATRIX rotationMatrixX;
+ D3DXMATRIX rotationMatrixY;
+ D3DXMATRIX rotationMatrixZ;
+  
+ D3DXMatrixRotationX(&rotationMatrixX,_rotX);
+ D3DXMatrixRotationY(&rotationMatrixY,_rotY);
+ D3DXMatrixRotationZ(&rotationMatrixZ, _rotZ);
 
-	D3DXMATRIX scaleMatrix;
-	D3DXMatrixScaling(&scaleMatrix, _scaleX, _scaleY, _scaleZ);
+ D3DXMATRIX scaleMatrix;
+ D3DXMatrixScaling(&scaleMatrix, _scaleX, _scaleY, _scaleZ);
 
-	D3DXMatrixIdentity(_transformationMatrix);
-	D3DXMatrixMultiply(_transformationMatrix,&translateMatrix,_transformationMatrix);
-	D3DXMatrixMultiply(_transformationMatrix,&rotationMatrix,_transformationMatrix);
-	D3DXMatrixMultiply(_transformationMatrix,&scaleMatrix,_transformationMatrix);
+ D3DXMatrixIdentity(_transformationMatrix);
+ D3DXMatrixMultiply(_transformationMatrix,&translateMatrix,_transformationMatrix);
+ D3DXMatrixMultiply(_transformationMatrix,&rotationMatrixX,_transformationMatrix);
+ D3DXMatrixMultiply(_transformationMatrix,&rotationMatrixY,_transformationMatrix);
+ D3DXMatrixMultiply(_transformationMatrix,&rotationMatrixZ,_transformationMatrix);
+ D3DXMatrixMultiply(_transformationMatrix,&scaleMatrix,_transformationMatrix);
 
 }
 
@@ -329,5 +335,5 @@ Matrix Entity3D::GetTranformationMatrix()
 
 void Entity3D::Update(Timer&)
 {
-	UpdateLocalTransformation();
+	
 }
