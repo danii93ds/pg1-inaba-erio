@@ -42,19 +42,17 @@ bool Scene::Draw(Renderer &renderer,Timer &timer)
 	{
 		(*iter)->Update(timer);
 		(*iter)->Draw(renderer);
-	}
+	}	
 
-
-	
-
-	std::vector<Entity3D*>::iterator iter2;
-	for(iter2 = _entities3D.end(); iter2 != _entities3D.begin(); iter2++)
+	std::vector<Node*>::iterator iter2;
+	for(iter2 = _entities3D.begin(); iter2 != _entities3D.end(); iter2++)
 	{
-		(*iter2)->UpdateTransformation();
-		(*iter2)->UpdateAABB();
-		CheckDraw(renderer,*(*iter2));
+//		(*iter2)->UpdateTransformation();
+//		(*iter2)->UpdateAABB();
+		
+		//CheckDraw(renderer,*(*iter2));
 		(*iter2)->Update(timer);
-		//(*iter2)->Draw(renderer);           // mas viejo
+		(*iter2)->Draw(renderer);           // mas viejo
 		//CheckDraw(renderer,*(*iter2));		// viejo 
 	}
 
@@ -63,7 +61,7 @@ bool Scene::Draw(Renderer &renderer,Timer &timer)
 
 bool Scene::CheckDraw(Renderer& renderer,Entity3D& entity) {
 	
-	int r = renderer.getCamera()->checkCollisionAABB(&entity);
+	/*int r = renderer.getCamera()->checkCollisionAABB(&entity);
 
 	if(r == Camera::INSIDE)
 		entity.Draw(renderer);
@@ -80,7 +78,7 @@ bool Scene::CheckDraw(Renderer& renderer,Entity3D& entity) {
 		else{
 			entity.Draw(renderer);                
 		}
-	}
+	}*/
 	
 	return true;
 }
@@ -131,7 +129,7 @@ void Scene::AddEntity(Entity2D* entity)
 	_entities.push_back(entity);
 }
 
-void Scene::AddEntity(Entity3D* entity){
+void Scene::AddEntity(Node* entity){
 	_entities3D.push_back(entity);
 } 
 

@@ -47,11 +47,7 @@ void Mesh::Draw(Renderer& renderer)
 	_vertexBuffer3D->bind();
 	_indexBuffer->bind();
 	renderer.setCurrentTexture(NoTexture);
-	renderer.setMatrix(World,_worldTransformationMatrix);
 	renderer.Draw(pPrimitive);
-	
-
-	drawAABB(renderer);
 }
 
 void Mesh::Update(Timer& timer) 

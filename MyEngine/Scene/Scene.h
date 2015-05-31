@@ -18,12 +18,13 @@ namespace Inaba
 	class Timer;
 	class Game;
 	class DirectInput;
+	class Node;
 
 	class MYENGINE_API Scene
 	{
 		protected:
 			std::vector<Entity2D*> _entities;
-			std::vector<Entity3D*> _entities3D;
+			std::vector<Node*> _entities3D;
 			std::string _name;
 			Game *_game;
 		
@@ -38,7 +39,7 @@ namespace Inaba
 			bool getEntity(Quad** ent ,std::string name);
 			bool getEntity(Mesh** ent ,std::string name);
 			void AddEntity(Entity2D*);
-			void AddEntity(Entity3D*);
+			void AddEntity(Node*);
 			void setName(std::string);
 			std::string Name(){return _name;}
 			std::string fileName;

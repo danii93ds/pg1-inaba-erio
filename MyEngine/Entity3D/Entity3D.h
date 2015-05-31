@@ -21,8 +21,6 @@ namespace Inaba
 		public:
 			Entity3D();
 			~Entity3D();
-			
-			
 
 			void setPos(float,float,float);
 			void setRotation(float,float,float);
@@ -37,44 +35,23 @@ namespace Inaba
 			float scaleX() const;
 			float scaleY() const;
 			float scaleZ() const;
-			//void Draw(Renderer&) const; 
 
-			float prevPosX() const;
-			float prevPosY() const;
-			float prevPosZ() const;
-
-			enum CollisionResult{
-				CollisionVertical,
-				CollisionHorizontal,
-				NoCollision
-			};
-
-			CollisionResult checkCollision(Entity3D&) const;
-			void drawAABB (Renderer&) const;
-			void returnToPos(float, float, float);
 			virtual void Draw(Renderer&) = 0;
 			virtual void Update(Timer&);
 			std::string name() const;
-			AABB* getAABB(); 
 			void setName(std::string);
-			void UpdateTransformation();
 			void SetParent(Node*);
-			virtual void UpdateAABB() = 0;
 			Node* GetParent();
-			Matrix GetTranformationMatrix();	
 			
 
 		protected:
-			float _posX, _posY, _posZ,_prevPosX, _prevPosY, _prevPosZ;
+			float _posX, _posY, _posZ;
 			float _rotX, _rotY, _rotZ;
 			float _scaleX;
 			float _scaleY;
 			float _scaleZ;
 			std::string _name; 
 			Node* _parent;
-			Matrix _transformationMatrix;
-			Matrix _worldTransformationMatrix;
-			void UpdateLocalTransformation();
 			AABB* _AABB;
 			
 	};

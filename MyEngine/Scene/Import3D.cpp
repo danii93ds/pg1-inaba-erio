@@ -78,12 +78,12 @@ bool Import3D::importMesh(aiMesh* myAiMeshes,Scene& scene, Mesh* mesh)
 
 bool Import3D::importScene(const std::string& fileName,Scene& scene)
 {
-	Assimp::Importer meshImporter;
+	Assimp::Importer importer;
 	
-	const aiScene* objScene = meshImporter.ReadFile( fileName.c_str(), 
-		aiProcess_Triangulate | 
-		aiProcess_GenSmoothNormals | 
-		aiProcess_FlipUVs);
+	const aiScene* objScene = importer.ReadFile( fileName.c_str(), 
+		aiPrimitiveType_LINE|aiPrimitiveType_POINT |
+		aiProcess_Triangulate |aiProcess_SortByPType
+		|aiProcess_MakeLeftHanded);
 
 	if( !objScene)
 	{
@@ -101,15 +101,12 @@ bool Import3D::importScene(const std::string& fileName,Scene& scene)
 
 bool Import3D::importNode(aiNode* myAiNode,const aiScene* myAiScene, Scene& scene, Node& pNode)
 {	
-	aiVector3t<float> scaling;
-	aiQuaterniont<float> rotation;
-	aiVector3t<float> position;
-	myAiNode->mTransformation.Decompose(scaling,rotation,position);
-	pNode.setPos(position.x,position.y,position.z);
-	pNode.setScale(scaling.x,scaling.y,scaling.z);
-	float rotX, rotY, rotZ;
-	quaternionToEuler(rotation.x,rotation.y,rotation.z,rotation.w,rotX,rotY,rotZ);
-	pNode.setRotation(rotX,rotY,rotZ);
+	aiMatrix4x4 m = myAiNode->mTransformation.Transpose();
+	pNode.SetFirstTransform(m.a1, m.a2, m.a3, m.a4,
+							m.b1, m.b2, m.b3, m.b4,
+							m.c1, m.c2, m.c3, m.c4,
+							m.d1, m.d2, m.d3, m.d4);
+
 
 	for(int nChild=0; nChild < myAiNode->mNumChildren; nChild++)
 	{
@@ -128,7 +125,7 @@ bool Import3D::importNode(aiNode* myAiNode,const aiScene* myAiScene, Scene& scen
 		Mesh *childMesh = new Mesh(*_renderer);
 		importMesh(myAiScene->mMeshes[myAiNode->mMeshes[nMeshes]], scene, childMesh);
 
-		pNode.AddChild(childMesh);
+		pNode.AddMesh(childMesh);
 		childMesh->SetParent(&pNode);
 	}
 
