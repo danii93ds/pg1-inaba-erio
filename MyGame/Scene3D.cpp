@@ -4,6 +4,7 @@
 #include <string>
 #include <sstream>
 #include <Entity3D\Mesh.h>
+#include <Entity3D\Node.h>
 
 using namespace Erio;
 
@@ -41,15 +42,19 @@ Scene3D::~Scene3D()
 
 bool Scene3D::Init(Inaba::Renderer& renderer)
 {   
-	_mesh1 = new Inaba::Mesh(renderer);
 
+	_NodeBones = new Inaba::Node();
+	_NodeBones->setName("Huesos");
+
+	//Inaba::Node *cubitos = new Inaba::Node();
 	//_mesh1->setData(g_8Vertices, 8, Inaba::TriangleList, g_indices, 36);
 	
 
 	//_mesh1->setData(g_8Vertices, 8, Inaba::Primitive::TriangleList, g_indices, 36);
-  	Inaba::Import3D::GetInstance()->importScene("bones_all.x",*this);
+	Inaba::Import3D::GetInstance()->importScene("bones_all.x",*this, *_NodeBones);
+	//Inaba::Import3D::GetInstance()->importScene("5cubos.obj",*this, *cubitos);
 	//Inaba::Import3D::GetInstance()->importMesh(*_mesh1,"cubitScene.obj");
-	//_mesh1->setScale(10,10,10);
+	_NodeBones->setScale(50,50,50);
 	//_mesh1->setPos(100,100,0);
 	return true;
 }

@@ -5,6 +5,7 @@
 #include <string>
 #include <fstream>
 #include "../Assimp32/include/Importer.hpp"
+#include "../Assimp32/include/types.h"
 #include "../Assimp32/include/scene.h"
 #include "../Assimp32/include/postprocess.h"
 #include <assert.h>
@@ -15,6 +16,7 @@ namespace Inaba
 	class Mesh;
 	class Renderer;
 	class Node;
+	class Animation3D;
 
 	class MYENGINE_API Import3D
 	{
@@ -28,9 +30,10 @@ namespace Inaba
 		public:
 			static Import3D* GetInstance();
 			void setRenderer(Renderer*);
-			bool importMesh(aiMesh*,Scene&, Mesh*);
+			bool importScene(const std::string&,Scene&,Node&);
 			bool importNode(aiNode*,const aiScene*,Scene&,Node&);
-			bool importScene(const std::string&,Scene&);
+			bool importMesh(aiMesh*,Scene&, Mesh*);
+			bool importAnimation(aiAnimation*,const aiScene&, Animation3D&);
 			void quaternionToEuler(float qX,float qY,float qZ,float qW,float& rotX,float& rotY,float& rotZ);
 	};
 }

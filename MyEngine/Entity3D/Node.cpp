@@ -13,7 +13,6 @@ _AssimpTransformMatrix(new D3DXMATRIX)
 	childs.clear();
 }
 
-
 Node::~Node()
 {
 	while(!childs.empty())
@@ -24,6 +23,32 @@ Node::~Node()
 		delete child;
 		child = NULL;
 	}
+
+	while(!meshes.empty())
+	{
+		Mesh* mesh = meshes.back();
+		meshes.pop_back();
+
+		delete mesh;
+		mesh = NULL;
+	}
+
+	while(!animations.empty())
+	{
+		Animation3D* anim = animations.back();
+		animations.pop_back();
+
+		delete anim;
+		anim = NULL;
+	}
+
+	_currentAnimation = NULL;
+
+	delete _worldTransformMatrix;
+	_worldTransformMatrix = NULL;
+
+	delete _AssimpTransformMatrix;
+	_AssimpTransformMatrix = NULL;
 }
 
 void Node::AddChild(Node* child)
@@ -46,6 +71,16 @@ void Node::RemoveMesh(Mesh* child)
 	meshes.remove(child);
 }
 
+void Node::AddAnimation(Animation3D* animation)
+{
+	animations.push_back(animation);
+}
+
+void Node::RemoveAnimation(Animation3D* animation)
+{
+	animations.remove(animation);
+}
+
 std::list<Node*> Node::getChilds(){
 	return childs;
 }
@@ -56,31 +91,43 @@ std::list<Mesh*> Node::getMeshes(){
 
 void Node::UpdateTransformation(Matrix transformation, Renderer *renderer)
 {
-	D3DXMATRIX translation;
-	D3DXMATRIX scale;
-	D3DXMATRIX rotationX;
-	D3DXMATRIX rotationY;
-	D3DXMATRIX rotationZ;
+	Matrix translation;
+	Matrix scale;
+	Matrix rotationX;
+	Matrix rotationY;
+	Matrix rotationZ;
 
-	D3DXMatrixTranslation(&translation, _posX,_posY,_posZ);
-	D3DXMatrixScaling(&scale,_scaleX,_scaleY,_scaleZ);	
+	D3DXMatrixTranslation(translation, _posX,_posY,_posZ);
+	D3DXMatrixScaling(scale,_scaleX,_scaleY,_scaleZ);	
 
 	//TODO RADIANES
-	D3DXMatrixRotationX(&rotationX,_rotX);
-	D3DXMatrixRotationY(&rotationY,_rotY);
-	D3DXMatrixRotationZ(&rotationZ,_rotZ);
+	D3DXMatrixRotationX(rotationX,_rotX);
+	D3DXMatrixRotationY(rotationY,_rotY);
+	D3DXMatrixRotationZ(rotationZ,_rotZ);
 
-	D3DXMATRIX _localtransformation;
+	Matrix _localtransformation;
 
-	D3DXMatrixIdentity(&_localtransformation);
-	D3DXMatrixMultiply(&_localtransformation,&translation,&_localtransformation);
-	D3DXMatrixMultiply(&_localtransformation,&rotationX,&_localtransformation);
-	D3DXMatrixMultiply(&_localtransformation,&rotationY,&_localtransformation);
-	D3DXMatrixMultiply(&_localtransformation,&rotationZ,&_localtransformation);
-	D3DXMatrixMultiply(&_localtransformation,&scale,&_localtransformation);
+	D3DXMatrixIdentity(_localtransformation);
+	D3DXMatrixMultiply(_localtransformation,translation,_localtransformation);
+	D3DXMatrixMultiply(_localtransformation,rotationX,_localtransformation);
+	D3DXMatrixMultiply(_localtransformation,rotationY,_localtransformation);
+	D3DXMatrixMultiply(_localtransformation,rotationZ,_localtransformation);
+	D3DXMatrixMultiply(_localtransformation,scale,_localtransformation);
 
-	D3DXMatrixMultiply(&_localtransformation,&_localtransformation,_AssimpTransformMatrix);
-	D3DXMatrixMultiply(_worldTransformMatrix,&_localtransformation,transformation);
+	if (_currentAnimation->getState() == Animation3D::PLAY && iKeyFrame != -1)
+	{
+		Matrix animTransform = _currentAnimation->getTransformationMatrix(iKeyFrame);
+
+		D3DXMatrixMultiply(animTransform, _localtransformation, transformation);
+
+		delete(animTransform);
+		animTransform == NULL;
+	}
+	else{
+		D3DXMatrixMultiply(_localtransformation,_localtransformation,_AssimpTransformMatrix);
+	}
+
+	D3DXMatrixMultiply(_worldTransformMatrix,_localtransformation,transformation);
 
 	if(childs.size())
 	{
@@ -119,9 +166,11 @@ void Node::SetFirstTransform(float a1,float a2,float a3, float a4,
  _AssimpTransformMatrix->_44 = d4;
 
 }
-void Node::Update(Timer& timer)
+
+void Node::Update(Timer& rkTimer)
 {
-//	UpdateTransformation();
+	if (_currentAnimation != NULL)
+		_currentAnimation->Update(rkTimer);
 }
 
 void Node::Draw(Renderer& r)
@@ -148,4 +197,37 @@ void Node::NodeDraw(Renderer* renderer)
 	{
 		(*iter2)->NodeDraw(renderer);
 	}
+}
+
+void Node::setAnimation(Animation3D* animation)
+{
+	this->_currentAnimation = animation;
+}
+
+bool Node::playAnimation(std::string animName)
+{
+	bool found = false;
+
+	std::list<Animation3D*>::iterator iter;
+	if( animName != _currentAnimation->name()) 
+	{
+		for(iter = animations.begin(); iter != animations.end(); iter++)
+		{
+	
+			if ((*iter)->name() == animName)
+			{
+				if (_currentAnimation != NULL)
+					_currentAnimation->Stop();
+
+				setAnimation((*iter));
+				found = true;
+				break;
+			}	
+		}
+
+		if (found)
+			_currentAnimation->Play();
+	}
+
+	return found;
 }

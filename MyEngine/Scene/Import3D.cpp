@@ -4,6 +4,7 @@
 #include "../Entity3D/Entity3D.h"
 #include "../Entity3D/Mesh.h"
 #include "../Entity3D/Node.h"
+#include "../Entity3D/Animation3D.h"
 #include "../Renderer/Renderer.h"
 #include <math.h>
 
@@ -30,53 +31,7 @@ void Import3D::setRenderer(Renderer *renderer)
 	_renderer = renderer;
 }
 
-bool Import3D::importMesh(aiMesh* myAiMeshes,Scene& scene, Mesh* mesh)
-{
-	UINT numVertices = 0;
-	UINT numFaces = 0;
-	UINT inx_faces = 0;
-
-	TextureCoordVertex* vertices;
-	USHORT* indices;
-
-	
-
-	numVertices += myAiMeshes->mNumVertices;
-	numFaces += myAiMeshes->mNumFaces;
-	vertices = new TextureCoordVertex[numVertices];
-	indices = new USHORT[numFaces*3];
-
-
-	for(int nVertex = 0; nVertex < myAiMeshes->mNumVertices; nVertex++)
-	{
-		vertices[nVertex].x = myAiMeshes->mVertices[nVertex].x;
-		vertices[nVertex].y = myAiMeshes->mVertices[nVertex].y;
-		vertices[nVertex].z = myAiMeshes->mVertices[nVertex].z;
-		//vertices[inx_vertex].Nx = myAiMeshes[nMeshes]->mNormals[nVertex].x;
-		//vertices[inx_vertex].Ny = myAiMeshes[nMeshes]->mNormals[nVertex].y;
-		//vertices[inx_vertex].Nz = myAiMeshes[nMeshes]->mNormals[nVertex].z;
-	}
-
-	for(int nFaces = 0; nFaces < myAiMeshes->mNumFaces; nFaces++)
-	{
-		indices[inx_faces++] = myAiMeshes->mFaces[nFaces].mIndices[0];
-		indices[inx_faces++] = myAiMeshes->mFaces[nFaces].mIndices[1];
-		indices[inx_faces++] = myAiMeshes->mFaces[nFaces].mIndices[2];
-	}
-
-	mesh->setData(vertices, myAiMeshes->mNumVertices,Inaba::TriangleList,indices,numFaces*3);
-	mesh->setName(myAiMeshes->mName.C_Str());
-	
-	
-
-	delete[] vertices;
-	vertices = NULL;
-	delete indices;
-
-	return true;
-}
-
-bool Import3D::importScene(const std::string& fileName,Scene& scene)
+bool Import3D::importScene(const std::string& fileName,Scene& scene, Node &rootNode)
 {
 	Assimp::Importer importer;
 	
@@ -91,10 +46,20 @@ bool Import3D::importScene(const std::string& fileName,Scene& scene)
 		return false;
 	}
 
-	Node *rootNode = new Node();
-	importNode(objScene->mRootNode, objScene, scene, *rootNode);
-	rootNode->setName("rootNode");
-	scene.AddEntity(rootNode);	
+	importNode(objScene->mRootNode, objScene, scene, rootNode);
+	rootNode.setName(objScene->mRootNode->mName.C_Str());
+	scene.AddEntity(&rootNode);
+
+	if (objScene->HasAnimations())
+	{
+		for (int nAnim = 0; nAnim < objScene->mNumAnimations; nAnim++)
+		{
+			// TODAS Y CADA UNA DE LAS ANIMACIONES
+			Animation3D *animation = new Animation3D();
+			importAnimation(objScene->mAnimations[nAnim],*objScene,*animation);
+			rootNode.AddAnimation(animation);
+		}
+	}
 
 	return true;
 }
@@ -133,6 +98,92 @@ bool Import3D::importNode(aiNode* myAiNode,const aiScene* myAiScene, Scene& scen
 
 	return true;
 
+}
+
+bool Import3D::importMesh(aiMesh* myAiMeshes,Scene& scene, Mesh* mesh)
+{
+	UINT numVertices = 0;
+	UINT numFaces = 0;
+	UINT inx_faces = 0;
+
+	TextureCoordVertex* vertices;
+	USHORT* indices;
+
+	
+
+	numVertices += myAiMeshes->mNumVertices;
+	numFaces += myAiMeshes->mNumFaces;
+	vertices = new TextureCoordVertex[numVertices];
+	indices = new USHORT[numFaces*3];
+
+
+	for(int nVertex = 0; nVertex < myAiMeshes->mNumVertices; nVertex++)
+	{
+		vertices[nVertex].x = myAiMeshes->mVertices[nVertex].x;
+		vertices[nVertex].y = myAiMeshes->mVertices[nVertex].y;
+		vertices[nVertex].z = myAiMeshes->mVertices[nVertex].z;
+		//vertices[inx_vertex].Nx = myAiMeshes[nMeshes]->mNormals[nVertex].x;
+		//vertices[inx_vertex].Ny = myAiMeshes[nMeshes]->mNormals[nVertex].y;
+		//vertices[inx_vertex].Nz = myAiMeshes[nMeshes]->mNormals[nVertex].z;
+	}
+
+	for(int nFaces = 0; nFaces < myAiMeshes->mNumFaces; nFaces++)
+	{
+		indices[inx_faces++] = myAiMeshes->mFaces[nFaces].mIndices[0];
+		indices[inx_faces++] = myAiMeshes->mFaces[nFaces].mIndices[1];
+		indices[inx_faces++] = myAiMeshes->mFaces[nFaces].mIndices[2];
+	}
+
+	mesh->setData(vertices, myAiMeshes->mNumVertices,Inaba::TriangleList,indices,numFaces*3);
+	mesh->setName(myAiMeshes->mName.C_Str());
+
+	delete[] vertices;
+	vertices = NULL;
+	delete indices;
+
+	return true;
+}
+
+bool Import3D::importAnimation(aiAnimation* myAiAnimation,const aiScene& myAiScene, Animation3D& pAnimation)
+{
+	pAnimation.setName(myAiAnimation->mName.C_Str());
+	pAnimation.setDuration(myAiAnimation->mDuration);
+	pAnimation.setTicksPerSecond(myAiAnimation->mTicksPerSecond);
+
+	for (int nChannel = 0; nChannel < myAiAnimation->mNumChannels; nChannel++)
+	{
+		Animation3D::keyFrame *newKeyFrame = new Animation3D::keyFrame();
+		newKeyFrame->nodeName = myAiAnimation->mChannels[nChannel]->mNodeName;
+		newKeyFrame->nPositionKeys = myAiAnimation->mChannels[nChannel]->mNumPositionKeys;
+		newKeyFrame->nRotationKeys = myAiAnimation->mChannels[nChannel]->mNumRotationKeys;
+		newKeyFrame->nScalingKeys = myAiAnimation->mChannels[nChannel]->mNumScalingKeys;
+
+		newKeyFrame->positionKeys = new aiVectorKey[newKeyFrame->nPositionKeys];
+		for (int i = 0; i < newKeyFrame->nPositionKeys; i++)
+		{
+			newKeyFrame->positionKeys[i].mTime = myAiAnimation->mChannels[nChannel]->mPositionKeys[i].mTime;
+			newKeyFrame->positionKeys[i].mValue = myAiAnimation->mChannels[nChannel]->mPositionKeys[i].mValue;
+		}
+		
+		newKeyFrame->rotationKeys = new aiQuatKey[newKeyFrame->nRotationKeys];
+		for (int i = 0; i < newKeyFrame->nRotationKeys; i++)
+		{
+			newKeyFrame->rotationKeys[i].mTime = myAiAnimation->mChannels[nChannel]->mRotationKeys[i].mTime;
+			newKeyFrame->rotationKeys[i].mValue = myAiAnimation->mChannels[nChannel]->mRotationKeys[i].mValue;
+		}
+		
+		newKeyFrame->scalingKeys = new aiVectorKey[newKeyFrame->nScalingKeys];
+		for (int i = 0; i < newKeyFrame->nScalingKeys; i++)
+		{
+			newKeyFrame->scalingKeys[i].mTime = myAiAnimation->mChannels[nChannel]->mScalingKeys[i].mTime;
+			newKeyFrame->scalingKeys[i].mValue = myAiAnimation->mChannels[nChannel]->mScalingKeys[i].mValue;
+		}
+
+		pAnimation.addKeyFrame(newKeyFrame);
+	}
+
+	// add anim node
+	return true;
 }
 
 void Import3D::quaternionToEuler(float qX,float qY,float qZ,float qW,float& rotX,float& rotY,float& rotZ)

@@ -19,7 +19,7 @@ namespace Inaba
 		float x, y, z;
 		float u, v;
 	};
-
+	
 	extern const int TextureCoordVertexType;
 
 	enum Primitive

@@ -21,7 +21,7 @@ namespace Erio
 			bool Init(Inaba::Renderer&);
 			bool Frame(Inaba::Renderer&,Inaba::DirectInput&, Inaba::Timer&);
 		private:		
-			Inaba::Mesh *_mesh1;
+			Inaba::Node *_NodeBones;
 	};
 
 }
