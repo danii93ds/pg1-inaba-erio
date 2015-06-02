@@ -48,11 +48,12 @@ namespace Inaba
 			void addKeyFrame(keyFrame*);
 			State getState();
 			void Update(Timer&);
+			int getIndexFrameKey(std::string);
 
 			void Play();
 			void Stop();
 
-			Matrix getTransformationMatrix(unsigned int);
+			D3DXMATRIX getTransformationMatrix(unsigned int);
 			D3DXVECTOR3 getInterpolatingVec(aiVectorKey*, int, double);
 			D3DXQUATERNION getInterpolatingQuat(aiQuatKey*, int, double);
 			

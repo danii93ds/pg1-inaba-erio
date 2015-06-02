@@ -43,19 +43,18 @@ Scene3D::~Scene3D()
 bool Scene3D::Init(Inaba::Renderer& renderer)
 {   
 
-	_NodeBones = new Inaba::Node();
-	_NodeBones->setName("Huesos");
-
-	//Inaba::Node *cubitos = new Inaba::Node();
-	//_mesh1->setData(g_8Vertices, 8, Inaba::TriangleList, g_indices, 36);
+	_Node = new Inaba::Node();
+	_Node->setName("Huesos");
 	
 
-	//_mesh1->setData(g_8Vertices, 8, Inaba::Primitive::TriangleList, g_indices, 36);
-	Inaba::Import3D::GetInstance()->importScene("bones_all.x",*this, *_NodeBones);
-	//Inaba::Import3D::GetInstance()->importScene("5cubos.obj",*this, *cubitos);
-	//Inaba::Import3D::GetInstance()->importMesh(*_mesh1,"cubitScene.obj");
-	_NodeBones->setScale(50,50,50);
-	//_mesh1->setPos(100,100,0);
+	Inaba::Import3D::GetInstance()->importScene("bones_all.x",*this, *_Node);
+
+	_Node->setScale(25,25,25);
+	_Node->setPos(0,0,0);
+	_Node->setRotation(0,0,0);
+	
+	_Node->playAnimation("Die");
+
 	return true;
 }
 
@@ -82,6 +81,8 @@ bool Scene3D::Frame(Inaba::Renderer& renderer, Inaba::DirectInput& directInput, 
 	if(directInput.keyDown(Inaba::Input::KEY_P))
 		_game->setScene("scene1", &renderer);
 
+	//if (directInput.keyDown(Inaba::Input::KEY_1))
+	//		_Node->playAnimation();
 
 	return true;
 }

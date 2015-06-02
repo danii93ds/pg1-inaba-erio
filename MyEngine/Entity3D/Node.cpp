@@ -6,10 +6,12 @@ using namespace Inaba;
 Node::Node():
 Entity3D(),
 _worldTransformMatrix(new D3DXMATRIX),
-_AssimpTransformMatrix(new D3DXMATRIX)
+_AssimpTransformMatrix(new D3DXMATRIX),
+_currentAnimation(NULL)
 {
 	D3DXMatrixIdentity(_worldTransformMatrix);
 	D3DXMatrixIdentity(_AssimpTransformMatrix);
+	iKeyFrame = 0;
 	childs.clear();
 }
 
@@ -91,43 +93,42 @@ std::list<Mesh*> Node::getMeshes(){
 
 void Node::UpdateTransformation(Matrix transformation, Renderer *renderer)
 {
-	Matrix translation;
-	Matrix scale;
-	Matrix rotationX;
-	Matrix rotationY;
-	Matrix rotationZ;
+	D3DXMATRIX translation;
+	D3DXMATRIX scale;
+	D3DXMATRIX rotationX;
+	D3DXMATRIX rotationY;
+	D3DXMATRIX rotationZ;
 
-	D3DXMatrixTranslation(translation, _posX,_posY,_posZ);
-	D3DXMatrixScaling(scale,_scaleX,_scaleY,_scaleZ);	
+	D3DXMatrixTranslation(&translation, _posX,_posY,_posZ);
+	D3DXMatrixScaling(&scale,_scaleX,_scaleY,_scaleZ);	
 
 	//TODO RADIANES
-	D3DXMatrixRotationX(rotationX,_rotX);
-	D3DXMatrixRotationY(rotationY,_rotY);
-	D3DXMatrixRotationZ(rotationZ,_rotZ);
+	D3DXMatrixRotationX(&rotationX,_rotX);
+	D3DXMatrixRotationY(&rotationY,_rotY);
+	D3DXMatrixRotationZ(&rotationZ,_rotZ);
 
-	Matrix _localtransformation;
+	D3DXMATRIX _localtransformation;
 
-	D3DXMatrixIdentity(_localtransformation);
-	D3DXMatrixMultiply(_localtransformation,translation,_localtransformation);
-	D3DXMatrixMultiply(_localtransformation,rotationX,_localtransformation);
-	D3DXMatrixMultiply(_localtransformation,rotationY,_localtransformation);
-	D3DXMatrixMultiply(_localtransformation,rotationZ,_localtransformation);
-	D3DXMatrixMultiply(_localtransformation,scale,_localtransformation);
+	D3DXMatrixIdentity(&_localtransformation);
+	D3DXMatrixMultiply(&_localtransformation,&translation,&_localtransformation);
+	D3DXMatrixMultiply(&_localtransformation,&rotationX,&_localtransformation);
+	D3DXMatrixMultiply(&_localtransformation,&rotationY,&_localtransformation);
+	D3DXMatrixMultiply(&_localtransformation,&rotationZ,&_localtransformation);
+	D3DXMatrixMultiply(&_localtransformation,&scale,&_localtransformation);
 
-	if (_currentAnimation->getState() == Animation3D::PLAY && iKeyFrame != -1)
+	if (_currentAnimation != NULL && _currentAnimation->getState() == Animation3D::PLAY && iKeyFrame != -1)
 	{
-		Matrix animTransform = _currentAnimation->getTransformationMatrix(iKeyFrame);
+		D3DXMATRIX animTransform = _currentAnimation->getTransformationMatrix(iKeyFrame);
 
-		D3DXMatrixMultiply(animTransform, _localtransformation, transformation);
+		D3DXMatrixMultiply(&_localtransformation, &animTransform, &_localtransformation);
 
-		delete(animTransform);
-		animTransform == NULL;
 	}
-	else{
-		D3DXMatrixMultiply(_localtransformation,_localtransformation,_AssimpTransformMatrix);
+	else
+	{
+		D3DXMatrixMultiply(&_localtransformation,&_localtransformation,_AssimpTransformMatrix);
 	}
 
-	D3DXMatrixMultiply(_worldTransformMatrix,_localtransformation,transformation);
+	D3DXMatrixMultiply(_worldTransformMatrix,&_localtransformation,transformation);
 
 	if(childs.size())
 	{
@@ -202,6 +203,14 @@ void Node::NodeDraw(Renderer* renderer)
 void Node::setAnimation(Animation3D* animation)
 {
 	this->_currentAnimation = animation;
+
+	iKeyFrame = _currentAnimation->getIndexFrameKey(_name);
+
+	std::list<Node*>::iterator iter;
+	for(iter = childs.begin(); iter != childs.end(); iter++)
+	{
+		(*iter)->setAnimation(animation);
+	}
 }
 
 bool Node::playAnimation(std::string animName)
@@ -209,7 +218,8 @@ bool Node::playAnimation(std::string animName)
 	bool found = false;
 
 	std::list<Animation3D*>::iterator iter;
-	if( animName != _currentAnimation->name()) 
+
+	if( _currentAnimation == NULL || animName != _currentAnimation->name()) 
 	{
 		for(iter = animations.begin(); iter != animations.end(); iter++)
 		{

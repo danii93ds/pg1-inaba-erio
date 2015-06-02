@@ -76,23 +76,23 @@ Animation3D::State Animation3D::getState()
 	return this->_state;
 }
 
-Matrix Animation3D::getTransformationMatrix(unsigned int index)
+D3DXMATRIX Animation3D::getTransformationMatrix(unsigned int index)
 {
-	Matrix transformationMatrix;
-	D3DXMatrixIdentity(transformationMatrix);
+	D3DXMATRIX transformationMatrix;
+	D3DXMatrixIdentity(&transformationMatrix);
 	
 	D3DXVECTOR3 interpolatedPos = getInterpolatingVec(keyFrames[index]->positionKeys, keyFrames[index]->nPositionKeys, _cFrameTime);
 	D3DXVECTOR3 interpolatedScale = getInterpolatingVec(keyFrames[index]->scalingKeys, keyFrames[index]->nScalingKeys, _cFrameTime);
 	D3DXQUATERNION interpolatedRot = getInterpolatingQuat(keyFrames[index]->rotationKeys, keyFrames[index]->nRotationKeys, _cFrameTime);
 	
-	Matrix translation, scalation, rotation;
-	D3DXMatrixTranslation(translation, interpolatedPos.x, interpolatedPos.y, interpolatedPos.z);
-	D3DXMatrixScaling(scalation, interpolatedScale.x, interpolatedScale.y, interpolatedScale.z);
-	D3DXMatrixRotationQuaternion(rotation, &interpolatedRot);
+	D3DXMATRIX translation, scalation, rotation;
+	D3DXMatrixTranslation(&translation, interpolatedPos.x, interpolatedPos.y, interpolatedPos.z);
+	D3DXMatrixScaling(&scalation, interpolatedScale.x, interpolatedScale.y, interpolatedScale.z);
+	D3DXMatrixRotationQuaternion(&rotation, &interpolatedRot);
 	
-	D3DXMatrixMultiply(transformationMatrix, translation, transformationMatrix);
-	D3DXMatrixMultiply(transformationMatrix, scalation, transformationMatrix);
-	D3DXMatrixMultiply(transformationMatrix, rotation, transformationMatrix);
+	D3DXMatrixMultiply(&transformationMatrix, &translation, &transformationMatrix);
+	D3DXMatrixMultiply(&transformationMatrix, &scalation,&transformationMatrix);
+	D3DXMatrixMultiply(&transformationMatrix, &rotation, &transformationMatrix);
 
 	return transformationMatrix;
 }
@@ -156,10 +156,23 @@ D3DXQUATERNION Animation3D::getInterpolatingQuat(aiQuatKey* quatKey, int nKeys, 
 
 }
 
+int Animation3D::getIndexFrameKey(std::string nodeName)
+{
+	for(int keyIndex=0; keyIndex < keyFrames.size(); keyIndex++)
+	{
+		if(keyFrames[keyIndex]->nodeName.C_Str() == nodeName)
+			return keyIndex;
+	}
+
+	return -1;
+}
+
 void Animation3D::Update(Timer& rkTimer)
 {
 	if (_state == PLAY)
 	{
-		_cFrameTime + rkTimer.timeBetweenFrames();
+		_cFrameTime += (rkTimer.timeBetweenFrames() /1000) * _ticksPerSecond;
+		while(_cFrameTime >= _duration)
+			_cFrameTime -= _duration;
 	}
 }
