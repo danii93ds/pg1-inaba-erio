@@ -4,6 +4,7 @@
 #include "../Entity3D/Entity3D.h"
 #include "../Entity3D/Mesh.h"
 #include "../Entity3D/Node.h"
+#include "../Entity3D/Bones.h"
 #include "../Entity3D/Animation3D.h"
 #include "../Renderer/Renderer.h"
 #include <math.h>
@@ -92,9 +93,7 @@ bool Import3D::importNode(aiNode* myAiNode,const aiScene* myAiScene, Scene& scen
 
 		pNode.AddMesh(childMesh);
 		childMesh->SetParent(&pNode);
-	}
-
-	
+	}	
 
 	return true;
 
@@ -108,8 +107,6 @@ bool Import3D::importMesh(aiMesh* myAiMeshes,Scene& scene, Mesh* mesh)
 
 	TextureCoordVertex* vertices;
 	USHORT* indices;
-
-	
 
 	numVertices += myAiMeshes->mNumVertices;
 	numFaces += myAiMeshes->mNumFaces;
@@ -134,12 +131,22 @@ bool Import3D::importMesh(aiMesh* myAiMeshes,Scene& scene, Mesh* mesh)
 		indices[inx_faces++] = myAiMeshes->mFaces[nFaces].mIndices[2];
 	}
 
+	if (myAiMeshes->HasBones())
+	{
+
+		for (int nBones = 0; nBones < myAiMeshes->mNumBones; nBones++)
+		{
+			
+
+		}
+	}
+
 	mesh->setData(vertices, myAiMeshes->mNumVertices,Inaba::TriangleList,indices,numFaces*3);
 	mesh->setName(myAiMeshes->mName.C_Str());
 
-	delete[] vertices;
-	vertices = NULL;
-	delete indices;
+	//delete[] vertices;
+	//vertices = NULL;
+	//delete indices;
 
 	return true;
 }
@@ -184,6 +191,15 @@ bool Import3D::importAnimation(aiAnimation* myAiAnimation,const aiScene& myAiSce
 
 	// add anim node
 	return true;
+}
+
+void Import3D::importBone(aiBone* myAiBone, const aiScene& myAiScene)
+{
+	Bones *newBone = new Bones();
+
+	newBone->setName(myAiBone->mName.C_Str);
+	newBone->setWeight myAiBone->;
+	myAiBone->
 }
 
 void Import3D::quaternionToEuler(float qX,float qY,float qZ,float qW,float& rotX,float& rotY,float& rotZ)

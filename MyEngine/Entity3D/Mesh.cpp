@@ -27,17 +27,17 @@ void Mesh::setData(const TextureCoordVertex* Tex_Vertex, size_t vertexCount, Ina
 	_numVertex = vertexCount;
 
 	pPrimitive = Prim;
-	_vertexBuffer3D->setVertexData((void*) Tex_Vertex,vertexCount);
-	_indexBuffer->setIndexData(pInt,indexCount);
 
 	_vVertex.resize(vertexCount);
-	memcpy(&(_vVertex.front()), Tex_Vertex, vertexCount * sizeof(TextureCoordVertex));
+	memcpy((void*)&_vVertex, Tex_Vertex, vertexCount * sizeof(TextureCoordVertex));
 
 	_vIndex.resize(indexCount);
 	memcpy(&(_vIndex.front()), pInt, indexCount * sizeof(unsigned short));
 
+	_vertexBuffer3D->setVertexData((void*) Tex_Vertex,vertexCount);
+	_vertexBuffer3D->setVertexData((void*) &_vVertex,vertexCount);
+	_indexBuffer->setIndexData(pInt,indexCount);
 	
-
 	
 }
 
