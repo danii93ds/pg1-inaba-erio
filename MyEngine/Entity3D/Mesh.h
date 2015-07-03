@@ -2,6 +2,7 @@
 #define MESH_H
 
 #include "Entity3D.h"
+#include "../Entity3D/Bones.h"
 #include "../Renderer/xMath.h"
 #include "../Renderer/RenderTypes.h"
 #include "../VertexBuffer/indexbuffer.h"
@@ -25,8 +26,10 @@ namespace Inaba
 			void Update(Timer&);
 			void UpdateAABB();
 
-			const std::vector<TextureCoordVertex>& vertexs() const;
-			const std::vector<unsigned short> indexs() const;
+			const TextureCoordVertex* vertexs() const;
+			const unsigned short* indexs() const;
+			std::vector<Bones*> getBones();
+			void insertBone(Bones*);
 
 			static int DrawnMeshes;
 
@@ -36,9 +39,13 @@ namespace Inaba
 			VertexBuffer3D* _vertexBuffer3D;
 			Primitive pPrimitive;
 			Renderer& _renderer;
-			std::vector<TextureCoordVertex> _vVertex;
-			std::vector<unsigned short> _vIndex;
+			TextureCoordVertex* _vVertex;
+			unsigned short* _vIndex;
+			
+			std::vector<Bones*> _Bones;
+
 			UINT _numVertex;
+			UINT _numIndex;
 	};
 }
 #endif

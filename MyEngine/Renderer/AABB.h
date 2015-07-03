@@ -16,7 +16,7 @@ class MYENGINE_API AABB
 	public:
 		AABB();
 		~AABB();
-		void setBounds(std::vector<TextureCoordVertex> vertices,int numVertex);
+		void setBounds(TextureCoordVertex* vertices,int numVertex);
 		float getWidth();
 		float getHeight();
 		float getDepth();

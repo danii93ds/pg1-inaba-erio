@@ -17,6 +17,7 @@ namespace Inaba
 	struct MYENGINE_API TextureCoordVertex
 	{
 		float x, y, z;
+		float nx, ny, nz;
 		float u, v;
 	};
 	

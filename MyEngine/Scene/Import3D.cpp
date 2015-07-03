@@ -39,7 +39,7 @@ bool Import3D::importScene(const std::string& fileName,Scene& scene, Node &rootN
 	const aiScene* objScene = importer.ReadFile( fileName.c_str(), 
 		aiPrimitiveType_LINE|aiPrimitiveType_POINT |
 		aiProcess_Triangulate |aiProcess_SortByPType
-		|aiProcess_MakeLeftHanded);
+		|aiProcess_MakeLeftHanded | aiProcess_FlipUVs);
 
 	if( !objScene)
 	{
@@ -89,7 +89,7 @@ bool Import3D::importNode(aiNode* myAiNode,const aiScene* myAiScene, Scene& scen
 	for(int nMeshes=0; nMeshes < myAiNode->mNumMeshes ; nMeshes++)
 	{
 		Mesh *childMesh = new Mesh(*_renderer);
-		importMesh(myAiScene->mMeshes[myAiNode->mMeshes[nMeshes]], scene, childMesh);
+		importMesh(myAiScene->mMeshes[myAiNode->mMeshes[nMeshes]], childMesh);
 
 		pNode.AddMesh(childMesh);
 		childMesh->SetParent(&pNode);
@@ -99,7 +99,7 @@ bool Import3D::importNode(aiNode* myAiNode,const aiScene* myAiScene, Scene& scen
 
 }
 
-bool Import3D::importMesh(aiMesh* myAiMeshes,Scene& scene, Mesh* mesh)
+bool Import3D::importMesh(aiMesh* myAiMeshes, Mesh* mesh)
 {
 	UINT numVertices = 0;
 	UINT numFaces = 0;
@@ -119,9 +119,19 @@ bool Import3D::importMesh(aiMesh* myAiMeshes,Scene& scene, Mesh* mesh)
 		vertices[nVertex].x = myAiMeshes->mVertices[nVertex].x;
 		vertices[nVertex].y = myAiMeshes->mVertices[nVertex].y;
 		vertices[nVertex].z = myAiMeshes->mVertices[nVertex].z;
-		//vertices[inx_vertex].Nx = myAiMeshes[nMeshes]->mNormals[nVertex].x;
-		//vertices[inx_vertex].Ny = myAiMeshes[nMeshes]->mNormals[nVertex].y;
-		//vertices[inx_vertex].Nz = myAiMeshes[nMeshes]->mNormals[nVertex].z;
+
+		if(myAiMeshes->HasNormals())
+		{
+			vertices[nVertex].nx = myAiMeshes->mNormals[nVertex].x;
+			vertices[nVertex].ny = myAiMeshes->mNormals[nVertex].y;
+			vertices[nVertex].nz = myAiMeshes->mNormals[nVertex].z;
+		}
+
+		if (myAiMeshes->HasTextureCoords(0))
+		{
+			vertices[nVertex].u = myAiMeshes->mTextureCoords[0][nVertex].x;
+			vertices[nVertex].v = myAiMeshes->mTextureCoords[0][nVertex].y;
+		}
 	}
 
 	for(int nFaces = 0; nFaces < myAiMeshes->mNumFaces; nFaces++)
@@ -130,14 +140,38 @@ bool Import3D::importMesh(aiMesh* myAiMeshes,Scene& scene, Mesh* mesh)
 		indices[inx_faces++] = myAiMeshes->mFaces[nFaces].mIndices[1];
 		indices[inx_faces++] = myAiMeshes->mFaces[nFaces].mIndices[2];
 	}
-
+ 
 	if (myAiMeshes->HasBones())
 	{
 
 		for (int nBones = 0; nBones < myAiMeshes->mNumBones; nBones++)
 		{
+			Bones* meshBone = new Bones();
+			meshBone->setName(myAiMeshes->mBones[nBones]->mName.C_Str());
+			meshBone->setWeightCount(myAiMeshes->mBones[nBones]->mNumWeights);
+
+			D3DMATRIX boneOffsetMatrix;
+
+			boneOffsetMatrix._11 = myAiMeshes->mBones[nBones]->mOffsetMatrix.a1; boneOffsetMatrix._12 = myAiMeshes->mBones[nBones]->mOffsetMatrix.a2; boneOffsetMatrix._13 = myAiMeshes->mBones[nBones]->mOffsetMatrix.a3; boneOffsetMatrix._14 = myAiMeshes->mBones[nBones]->mOffsetMatrix.a4;
+			boneOffsetMatrix._21 = myAiMeshes->mBones[nBones]->mOffsetMatrix.b1; boneOffsetMatrix._22 = myAiMeshes->mBones[nBones]->mOffsetMatrix.b2; boneOffsetMatrix._23 = myAiMeshes->mBones[nBones]->mOffsetMatrix.b3; boneOffsetMatrix._24 = myAiMeshes->mBones[nBones]->mOffsetMatrix.b4;
+			boneOffsetMatrix._31 = myAiMeshes->mBones[nBones]->mOffsetMatrix.c1; boneOffsetMatrix._32 = myAiMeshes->mBones[nBones]->mOffsetMatrix.c2; boneOffsetMatrix._33 = myAiMeshes->mBones[nBones]->mOffsetMatrix.c3; boneOffsetMatrix._34 = myAiMeshes->mBones[nBones]->mOffsetMatrix.c4;
+			boneOffsetMatrix._41 = myAiMeshes->mBones[nBones]->mOffsetMatrix.d1; boneOffsetMatrix._42 = myAiMeshes->mBones[nBones]->mOffsetMatrix.d2; boneOffsetMatrix._43 = myAiMeshes->mBones[nBones]->mOffsetMatrix.d3; boneOffsetMatrix._44 = myAiMeshes->mBones[nBones]->mOffsetMatrix.d4;
+
+			meshBone->setOffsetMatrix(boneOffsetMatrix);
+			
+			for (int nWeights = 0; nWeights < myAiMeshes->mBones[nBones]->mNumWeights; nWeights++)
+			{
+				Bones::Weight *boneWeight = new Bones::Weight();
+
+				boneWeight->VertexId = myAiMeshes->mBones[nBones]->mWeights[nWeights].mVertexId;
+				boneWeight->_Weigth = myAiMeshes->mBones[nBones]->mWeights[nWeights].mWeight;
+
+				meshBone->insertWeight(boneWeight);
+			}
 			
 
+			mesh->insertBone(meshBone);
+			
 		}
 	}
 
@@ -193,13 +227,31 @@ bool Import3D::importAnimation(aiAnimation* myAiAnimation,const aiScene& myAiSce
 	return true;
 }
 
-void Import3D::importBone(aiBone* myAiBone, const aiScene& myAiScene)
+bool Import3D::importBone(aiBone* myAiBone)
 {
 	Bones *newBone = new Bones();
 
-	newBone->setName(myAiBone->mName.C_Str);
-	newBone->setWeight myAiBone->;
-	myAiBone->
+	newBone->setName(myAiBone->mName.C_Str());
+	newBone->setWeightCount(myAiBone->mNumWeights);
+	
+	for (int iWeight = 0; iWeight < myAiBone->mNumWeights; iWeight++)
+	{
+		Bones::Weight *boneWeight = new Bones::Weight;
+		boneWeight->VertexId = myAiBone->mWeights[iWeight].mVertexId;
+		boneWeight->_Weigth = myAiBone->mWeights[iWeight].mWeight;
+		newBone->insertWeight(boneWeight);
+	}
+
+	D3DXMATRIX boneOffsetMatrix;
+	boneOffsetMatrix._11 = myAiBone->mOffsetMatrix.a1; boneOffsetMatrix._12 = myAiBone->mOffsetMatrix.a2; boneOffsetMatrix._13 = myAiBone->mOffsetMatrix.a3; boneOffsetMatrix._14 = myAiBone->mOffsetMatrix.a4;
+	boneOffsetMatrix._21 = myAiBone->mOffsetMatrix.b1; boneOffsetMatrix._22 = myAiBone->mOffsetMatrix.b2; boneOffsetMatrix._23 = myAiBone->mOffsetMatrix.b3; boneOffsetMatrix._24 = myAiBone->mOffsetMatrix.b4;
+	boneOffsetMatrix._31 = myAiBone->mOffsetMatrix.c1; boneOffsetMatrix._32 = myAiBone->mOffsetMatrix.c2; boneOffsetMatrix._33 = myAiBone->mOffsetMatrix.c3; boneOffsetMatrix._34 = myAiBone->mOffsetMatrix.c4;
+	boneOffsetMatrix._41 = myAiBone->mOffsetMatrix.d1; boneOffsetMatrix._42 = myAiBone->mOffsetMatrix.d2; boneOffsetMatrix._43 = myAiBone->mOffsetMatrix.d3; boneOffsetMatrix._44 = myAiBone->mOffsetMatrix.d4;
+	
+	newBone->setOffsetMatrix(boneOffsetMatrix);
+	
+	
+	return true;
 }
 
 void Import3D::quaternionToEuler(float qX,float qY,float qZ,float qW,float& rotX,float& rotY,float& rotZ)

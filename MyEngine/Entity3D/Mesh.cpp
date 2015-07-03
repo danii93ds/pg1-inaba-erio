@@ -25,18 +25,35 @@ Mesh::~Mesh()
 void Mesh::setData(const TextureCoordVertex* Tex_Vertex, size_t vertexCount, Inaba::Primitive Prim, const unsigned short* pInt, size_t indexCount)
 {
 	_numVertex = vertexCount;
-
+	_numIndex = indexCount;
 	pPrimitive = Prim;
 
-	_vVertex.resize(vertexCount);
-	memcpy((void*)&_vVertex, Tex_Vertex, vertexCount * sizeof(TextureCoordVertex));
+	_vVertex = new TextureCoordVertex[_numVertex];
+	_vIndex = new USHORT[indexCount];
 
-	_vIndex.resize(indexCount);
-	memcpy(&(_vIndex.front()), pInt, indexCount * sizeof(unsigned short));
+	for (int i = 0; i < _numVertex; i++)
+	{
+		_vVertex[i].x = Tex_Vertex[i].x;
+		_vVertex[i].y = Tex_Vertex[i].y;
+		_vVertex[i].z = Tex_Vertex[i].z;
 
-	_vertexBuffer3D->setVertexData((void*) Tex_Vertex,vertexCount);
-	_vertexBuffer3D->setVertexData((void*) &_vVertex,vertexCount);
-	_indexBuffer->setIndexData(pInt,indexCount);
+		_vVertex[i].u = Tex_Vertex[i].u;
+		_vVertex[i].v = Tex_Vertex[i].v;
+		
+		_vVertex[i].nx = Tex_Vertex[i].nx;
+		_vVertex[i].ny = Tex_Vertex[i].ny;
+		_vVertex[i].nz = Tex_Vertex[i].nz;
+	}
+
+	for (int i = 0; i < _numIndex; i++)
+	{
+		_vIndex[i] = pInt[i];
+	}
+
+	_vertexBuffer3D->setVertexData((void*) &_vVertex,_numVertex);
+	_indexBuffer->setIndexData(_vIndex,_numIndex);
+	//_vertexBuffer3D->setVertexData((void*) Tex_Vertex,vertexCount);
+	//_indexBuffer->setIndexData(pInt,indexCount);
 	
 	
 }
@@ -55,12 +72,22 @@ void Mesh::Update(Timer& timer)
 	Entity3D::Update(timer);
 }
 
-const std::vector<TextureCoordVertex>& Mesh::vertexs() const{
+const TextureCoordVertex* Mesh::vertexs() const{
 	return _vVertex;
 }
 
-const std::vector<unsigned short> Mesh::indexs() const{
+const unsigned short* Mesh::indexs() const{
 	return _vIndex;
+}
+
+std::vector<Bones*> Mesh::getBones()
+{
+	return _Bones;
+}
+
+void Mesh::insertBone(Bones* bone)
+{
+	this->_Bones.push_back(bone);
 }
 
 void Mesh::UpdateAABB()

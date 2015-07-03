@@ -32,8 +32,9 @@ namespace Inaba
 			void setRenderer(Renderer*);
 			bool importScene(const std::string&,Scene&,Node&);
 			bool importNode(aiNode*,const aiScene*,Scene&,Node&);
-			bool importMesh(aiMesh*,Scene&, Mesh*);
+			bool importMesh(aiMesh*, Mesh*);
 			bool importAnimation(aiAnimation*,const aiScene&, Animation3D&);
+			bool importBone(aiBone*); 
 			void quaternionToEuler(float qX,float qY,float qZ,float qW,float& rotX,float& rotY,float& rotZ);
 	};
 }
