@@ -6,6 +6,7 @@
 #include "../Entity2D/Animation.h"
 #include "../Entity3D/Mesh.h"
 #include "../Entity3D/Node.h"
+#include "../Entity3D/BSPNode.h"
 #include "../Timer/Timer.h"
 #include "../Camera/Camera.h"
 #include "../Renderer/Renderer.h"
@@ -13,8 +14,10 @@
 
 using namespace Inaba;
 
-Scene::Scene()
-{	
+Scene::Scene() :
+BSP(NULL)
+{
+
 }
 
 bool Scene::deInit()
@@ -44,16 +47,23 @@ bool Scene::Draw(Renderer &renderer,Timer &timer)
 		(*iter)->Draw(renderer);
 	}	
 
-	std::vector<Node*>::iterator iter2;
-	for(iter2 = _entities3D.begin(); iter2 != _entities3D.end(); iter2++)
+	if (BSP != NULL)
 	{
-//		(*iter2)->UpdateTransformation();
-//		(*iter2)->UpdateAABB();
-		
-		//CheckDraw(renderer,*(*iter2));
-		(*iter2)->Update(timer);
-		(*iter2)->Draw(renderer);           // mas viejo
-		//CheckDraw(renderer,*(*iter2));		// viejo 
+		BSP->Draw(&renderer, renderer.getCamera()->getPosition());
+	}
+	else
+	{
+		std::vector<Node*>::iterator iter2;
+		for (iter2 = _entities3D.begin(); iter2 != _entities3D.end(); iter2++)
+		{
+			//		(*iter2)->UpdateTransformation();
+			//		(*iter2)->UpdateAABB();
+
+			//CheckDraw(renderer,*(*iter2));
+			(*iter2)->Update(timer);
+			(*iter2)->Draw(renderer);           // mas viejo
+			//CheckDraw(renderer,*(*iter2));		// viejo 
+		}
 	}
 
 	return true;
@@ -136,4 +146,55 @@ void Scene::AddEntity(Node* entity){
 void Scene::setName(std::string sceneName)
 {
 	_name = sceneName;
+}
+
+void Scene::AddNodeToBSP(Node* node)
+{
+	if (node->isPlane())
+		AddBSPPlane(node);
+
+	nodesToBSP.push_back(node);
+
+	std::list<Node*> childs = node->getChilds();
+	std::list<Node*>::iterator iter;
+	for (iter = childs.begin(); iter != childs.end(); iter++)
+	{
+		AddNodeToBSP((*iter));
+	}
+}
+
+void Scene::AddBSPPlane(Node* node)
+{
+	D3DXPLANE plane = node->GetPlane();
+	D3DXVECTOR3 point(node->getWorldTransformation()._41, node->getWorldTransformation()._42, node->getWorldTransformation()._43);
+	BSPNode* bspNode = new BSPNode(plane, point);
+	BSPNodes.push_back(bspNode);
+	bspNode->setName(node->name());
+}
+
+void Scene::RegisterInBSPtree(Node* node, bool isBSP, Renderer& renderer)
+{
+	D3DXMATRIX identity;
+	D3DXMatrixIdentity(&identity);
+	node->UpdateTransformation(&identity, &renderer);
+	if (!isBSP)
+		parentNodes.push_back(node);
+	else
+		AddNodeToBSP(node);
+}
+
+void Scene::ArrangeBSPTree()
+{
+	if (nodesToBSP.size() != 0){
+		BSP = BSPNodes[0];
+		for (int i = 1; i < BSPNodes.size(); i++){
+			if (BSPNodes[i] != NULL)
+				BSP->AddNode(BSPNodes[i]);
+		}
+
+		for (int i = 0; i < nodesToBSP.size(); i++){
+			if (nodesToBSP[i]->getMeshes().size())
+				BSP->AddChild(nodesToBSP[i]);
+		}
+	}
 }

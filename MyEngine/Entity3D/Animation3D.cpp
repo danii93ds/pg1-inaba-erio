@@ -9,7 +9,7 @@ using namespace Inaba;
 Animation3D::Animation3D() :
 	_name(""),
 	_duration(0),
-	_ticksPerSecond(0),
+	_ticksPerSecond(1500),
 	_cFrameTime(0),
 	_state(STOP)
 {
@@ -53,7 +53,8 @@ double Animation3D::duration()
 	return this->_duration;
 }
 
-void Animation3D::setDuration(double value){
+void Animation3D::setDuration(double value)
+{
 	this->_duration = value;
 }
 
@@ -62,8 +63,10 @@ double Animation3D::ticksPerSecond()
 	return this->_ticksPerSecond;
 }
 
-void Animation3D::setTicksPerSecond(double value){
-	this->_ticksPerSecond = value;
+void Animation3D::setTicksPerSecond(double value)
+{
+	if (value > 0)
+		this->_ticksPerSecond = value;
 }
 
 void Animation3D::addKeyFrame(keyFrame* kFrame)

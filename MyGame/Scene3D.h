@@ -4,6 +4,7 @@
 #include "Game.h"
 #include "Renderer/RenderTypes.h"
 #include "Entity3D/Mesh.h"
+#include "Entity3D/Node.h"
 #include "Renderer/Renderer.h"
 #include "Timer/timer.h"
 #include "Scene/Import.h"

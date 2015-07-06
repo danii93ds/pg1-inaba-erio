@@ -25,6 +25,7 @@ _d3ddev(NULL),
 _vertexbuffer(NULL),
 _textureCoordVertexbuffer(NULL)
 {
+	wireFrameMode = false;
 }
 
 Renderer::~Renderer()
@@ -89,7 +90,7 @@ bool Renderer::Init(HWND hWnd)
 	_d3ddev->SetRenderState(D3DRS_SRCBLEND,D3DBLEND_SRCALPHA);
 	//_d3ddev->SetRenderState(D3DRS_DESTBLEND,D3DBLEND_INVSRCALPHA);
 	_d3ddev->SetRenderState(D3DRS_BLENDOP,D3DBLENDOP_ADD);
-	//_d3ddev->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
+	_d3ddev->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
 
 
 	//INIT CAMERA
@@ -170,6 +171,22 @@ void Renderer::setMatrix(MatrixType matrixType, const Matrix& matrix)
 	_d3ddev->SetTransform(MatrixTypeMapping[matrixType], matrix);
 }
 
+void Renderer::setWireFrameMode(bool wireFrame){
+	if (wireFrame == true){
+		_d3ddev->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
+	}
+	else{
+		_d3ddev->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
+	}
+
+	wireFrameMode = wireFrame;
+}
+
+bool Renderer::getWireFrameMode()
+{
+	return wireFrameMode;
+}
+
 const Texture Renderer::LoadTexture(const std::string& FileName, int KeyCode)
 {
 	IDirect3DTexture9 *texture = NULL;
@@ -201,6 +218,16 @@ const Texture Renderer::LoadTexture(const std::string& FileName, int KeyCode)
 void Renderer::setCurrentTexture(const Texture& texture)
 {
 	_d3ddev->SetTexture(0,texture);
+}
+
+void Renderer::setLight(D3DLIGHT9 * light, unsigned long in)
+{
+	_d3ddev->SetLight(in, light);
+}
+
+void Renderer::enableLight(bool enabled, unsigned long in)
+{
+	_d3ddev->LightEnable(in, enabled);
 }
 
 void Renderer::setCurrentVertexBuffer(VertexBuffer3D* vertexBuffer3D)

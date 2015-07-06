@@ -20,6 +20,7 @@
     <ClCompile Include="Entity3D\Animation3D.cpp" />
     <ClCompile Include="Entity3D\BoneInfo.cpp" />
     <ClCompile Include="Entity3D\Bones.cpp" />
+    <ClCompile Include="Entity3D\BSPNode.cpp" />
     <ClCompile Include="Entity3D\Mesh.cpp" />
     <ClCompile Include="Entity3D\Entity3D.cpp" />
     <ClCompile Include="Entity3D\Node.cpp" />
@@ -28,6 +29,8 @@
     <ClCompile Include="Input\directinput.cpp" />
     <ClCompile Include="Input\input.cpp" />
     <ClCompile Include="Renderer\AABB.cpp" />
+    <ClCompile Include="Renderer\Light.cpp" />
+    <ClCompile Include="Renderer\Material.cpp" />
     <ClCompile Include="Renderer\Renderer.cpp" />
     <ClCompile Include="Renderer\RenderTypes.cpp" />
     <ClCompile Include="Renderer\Vertexbuffer.cpp" />
@@ -51,6 +54,7 @@
     <ClInclude Include="Entity3D\Animation3D.h" />
     <ClInclude Include="Entity3D\BoneInfo.h" />
     <ClInclude Include="Entity3D\Bones.h" />
+    <ClInclude Include="Entity3D\BSPNode.h" />
     <ClInclude Include="Entity3D\Mesh.h" />
     <ClInclude Include="Entity3D\Entity3D.h" />
     <ClInclude Include="Entity3D\Node.h" />
@@ -60,6 +64,8 @@
     <ClInclude Include="Input\input.h" />
     <ClInclude Include="myengine_api.h" />
     <ClInclude Include="Renderer\AABB.h" />
+    <ClInclude Include="Renderer\Light.h" />
+    <ClInclude Include="Renderer\Material.h" />
     <ClInclude Include="Renderer\Renderer.h" />
     <ClInclude Include="Renderer\RenderTypes.h" />
     <ClInclude Include="Renderer\Vertexbuffer.h" />

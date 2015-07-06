@@ -19,6 +19,7 @@ namespace Inaba
 	class Game;
 	class DirectInput;
 	class Node;
+	class BSPNode;
 
 	class MYENGINE_API Scene
 	{
@@ -26,6 +27,10 @@ namespace Inaba
 			std::vector<Entity2D*> _entities;
 			std::vector<Node*> _entities3D;
 			std::string _name;
+			std::vector<Node*> nodesToBSP;
+			std::vector<Node*> parentNodes;
+			std::vector<BSPNode*> BSPNodes;
+			BSPNode* BSP;
 			Game *_game;
 		
 		public:
@@ -41,6 +46,11 @@ namespace Inaba
 			void AddEntity(Entity2D*);
 			void AddEntity(Node*);
 			void setName(std::string);
+			void AddBSPPlane(Node* node);
+			void AddNodeToBSP(Node* node);
+			void RegisterInBSPtree(Node* node, bool isBSP, Renderer&);
+			void ArrangeBSPTree();
+
 			std::string Name(){return _name;}
 			std::string fileName;
 	};

@@ -29,9 +29,12 @@ namespace Inaba
 			std::list<Node*> getChilds();
 			std::list<Mesh*> getMeshes();
 			std::list<Animation3D*> getAnimations();
+			void DrawMeshes(Renderer&);
 			void Draw(Renderer&);
 			void Update(Timer&);
 			void UpdateTransformation(Matrix transformation, Renderer *renderer);
+			D3DXMATRIX getWorldTransformation();
+			D3DXMATRIX getLocalTransformation();
 			void SetFirstTransform(	float a1,float a2,float a3,float a4,
 									float b1,float b2,float b3,float b4,
 									float c1,float c2,float c3,float c4,
@@ -41,6 +44,11 @@ namespace Inaba
 			Bones* nodeBone();
 			bool playAnimation(std::string);
 			void setAnimation(Animation3D*);
+			bool isPlane();
+			void isPlane(bool);
+			void calculateBB();
+			D3DXPLANE GetPlane();
+			D3DXVECTOR3* getBB();
 
 		private:
 			Matrix _worldTransformMatrix;
@@ -48,9 +56,16 @@ namespace Inaba
 			std::list<Node*> childs;
 			std::list<Mesh*> meshes;
 			std::list<Animation3D*> animations;
+			void GetBoundings(D3DXVECTOR3* pOutMin, D3DXVECTOR3* pOutMax);
 			Bones* _bone;
 			Animation3D* _currentAnimation;
 			int iKeyFrame;
+			bool _isPlane;
+
+			D3DXVECTOR3* _vBB;
+			D3DXVECTOR3 _minBound;
+			D3DXVECTOR3 _maxBound;
+
 	};
 }
 #endif

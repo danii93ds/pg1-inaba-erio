@@ -37,6 +37,7 @@ namespace Inaba
 			bool importScene(const std::string&,Scene&,Node&);
 			bool importNode(aiNode*,const aiScene*,Scene&,Node&);
 			bool importMesh(aiMesh*, Mesh*);
+			bool importMaterial(aiMaterial*, Mesh&);
 			bool importAnimation(aiAnimation*,const aiScene&, Animation3D&);
 			bool importBone(aiBone*, Mesh*); 
 			void addBoneNode(Node*);

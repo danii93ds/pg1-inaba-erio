@@ -5,6 +5,7 @@
 #include "../Entity3D/BoneInfo.h"
 #include "../Renderer/xMath.h"
 #include "../Renderer/RenderTypes.h"
+#include "../Renderer/Material.h"
 #include "../VertexBuffer/indexbuffer.h"
 #include "../VertexBuffer/vertexbuffer3D.h"
 #include "../myengine_api.h"
@@ -32,6 +33,14 @@ namespace Inaba
 			void insertBone(BoneInfo*);
 			void drawAnimation(Renderer&);
 
+			Texture getTexture();
+			void setTexture(Texture texture);
+			Material* getMaterial();
+			void setMaterial(Material* material);
+			D3DXPLANE GetPlane(D3DXMATRIX*);
+			void calculateBB();
+			void getTransformedBox(D3DXMATRIX * pMatrizMundo, D3DXVECTOR3 * pOut);
+
 			static int DrawnMeshes;
 
 		private:
@@ -39,17 +48,18 @@ namespace Inaba
 			VertexBuffer3D* _vertexBuffer3D;
 			Primitive pPrimitive;
 			Renderer& _renderer;
+			Texture _texture;
+			Material *_material;
+
 			TextureCoordVertex* _vVertex;
 			unsigned short* _vIndex;
+			UINT _numVertex;
+			UINT _numIndex;
 			
 			D3DXVECTOR3* _vecHuesos;
 			D3DXVECTOR3* _vectorDraw;
-
-
+			D3DXVECTOR3* _vBB;
 			std::vector<BoneInfo*> _Bones;
-
-			UINT _numVertex;
-			UINT _numIndex;
 	};
 }
 #endif

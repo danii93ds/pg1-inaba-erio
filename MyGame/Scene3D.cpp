@@ -44,14 +44,22 @@ bool Scene3D::Init(Inaba::Renderer& renderer)
 {   
 
 	_Node = new Inaba::Node();
+	Inaba::Node* bspNode = new Inaba::Node();
 	
-	Inaba::Import3D::GetInstance()->importScene("tiny.x",*this, *_Node);
+	//Inaba::Import3D::GetInstance()->importScene("wispwind.x",*this, *_Node);
+	//Inaba::Import3D::GetInstance()->importScene("tiny.x", *this, *_Node);
+	Inaba::Import3D::GetInstance()->importScene("bsp.3ds", *this, *bspNode);
 
-	_Node->setScale(0.2f,0.2f,0.2f);
-	_Node->setPos(0,0,100);
-	_Node->setRotation(-90,0,135);
+	RegisterInBSPtree(bspNode, true, renderer);
+	ArrangeBSPTree();
+
+	//_Node->setScale(0.2f,0.2f,0.2f);
+	//_Node->setScale(10, 10, 10);
+	//_Node->setPos(0,0,100);
+	//_Node->setRotation(-90,0,135);
 	
-	_Node->playAnimation("");
+	//_Node->playAnimation("Anim-1");
+	//_Node->playAnimation("");
 
 	return true;
 }
@@ -78,6 +86,9 @@ bool Scene3D::Frame(Inaba::Renderer& renderer, Inaba::DirectInput& directInput, 
 
 	if(directInput.keyDown(Inaba::Input::KEY_P))
 		_game->setScene("scene1", &renderer);
+
+	if (directInput.keyDown(Inaba::Input::KEY_F1))
+		renderer.setWireFrameMode(!renderer.getWireFrameMode());
 
 	//if (directInput.keyDown(Inaba::Input::KEY_1))
 	//		_Node->playAnimation();

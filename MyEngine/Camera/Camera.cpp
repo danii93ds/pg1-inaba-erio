@@ -82,6 +82,11 @@ void Camera::SetPosition(D3DXVECTOR3* pPosition)
 	_position.z = pPosition->z;
 }
 
+D3DXVECTOR3 Camera::getPosition()
+{
+	return _position;
+}
+
 void Camera::SetLookAt(D3DXVECTOR3* pLookAt)
 {
 	_lookAt.x = pLookAt->x;

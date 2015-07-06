@@ -120,6 +120,15 @@
     <ClCompile Include="Entity3D\BoneInfo.cpp">
       <Filter>Entity3D</Filter>
     </ClCompile>
+    <ClCompile Include="Renderer\Material.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\Light.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Entity3D\BSPNode.cpp">
+      <Filter>Entity3D</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Entity2D\Animation.h">
@@ -210,6 +219,15 @@
       <Filter>Entity3D</Filter>
     </ClInclude>
     <ClInclude Include="Entity3D\BoneInfo.h">
+      <Filter>Entity3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\Material.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\Light.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Entity3D\BSPNode.h">
       <Filter>Entity3D</Filter>
     </ClInclude>
   </ItemGroup>

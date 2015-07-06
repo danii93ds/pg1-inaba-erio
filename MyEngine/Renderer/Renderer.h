@@ -26,6 +26,7 @@ namespace Inaba
 		Inaba::IndexBuffer *_indexBuffer;
 		Inaba::VertexBuffer *_textureCoordVertexbuffer;
 		std::vector<Texture> _vectorTextures;
+		bool wireFrameMode;
 		Font *_font;
 		Camera *_camera;
 	public:
@@ -43,11 +44,16 @@ namespace Inaba
 		void setCurrentTexture(const Texture&);
 		void setCurrentVertexBuffer(VertexBuffer3D* vertexBuffer3D);
 		void setCurrentIndexBuffer(IndexBuffer* indexBuffer);
+		void setWireFrameMode(bool);
+		bool getWireFrameMode();
+		void setLight(D3DLIGHT9*, unsigned long);
+		void enableLight(bool, unsigned long);
 		VertexBuffer3D * createVertexBuffer3D(size_t vSize, unsigned int FVF);
 		IndexBuffer * createIndexBuffer();
 		Font * getFont();
 		Camera * getCamera();
 		void UpdateCamera();
+		
 
 	};
 

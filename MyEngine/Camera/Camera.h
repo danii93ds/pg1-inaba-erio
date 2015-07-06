@@ -30,6 +30,7 @@ namespace Inaba
 		void SetNearPlane(float plane)		{ CreateProjectionMatrix(_fov, _aspect, plane, _farPlane); }
 		void SetFarPlane(float plane)		{ CreateProjectionMatrix(_fov, _aspect, _nearPlane, plane); }
 		void SetPosition(D3DXVECTOR3* pPosition);
+		D3DXVECTOR3 getPosition();
 		void SetLookAt(D3DXVECTOR3* pLookAt);
 		void BuildViewFrustum();
 		UINT checkCollisionAABB(Entity3D* entity3D);

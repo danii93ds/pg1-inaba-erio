@@ -74,13 +74,15 @@ bool Import3D::importNode(aiNode* myAiNode,const aiScene* myAiScene, Scene& scen
 							m.c1, m.c2, m.c3, m.c4,
 							m.d1, m.d2, m.d3, m.d4);
 
-
 	for(int nChild=0; nChild < myAiNode->mNumChildren; nChild++)
 	{
 		Node *childNode = new Node();
 		pNode.AddChild(childNode);
 		childNode->SetParent(&pNode);
 		childNode->setName(myAiNode->mChildren[nChild]->mName.C_Str());
+
+		if (childNode->name().find("BSP") != std::string::npos)
+			childNode->isPlane(true);
 
         importNode(myAiNode->mChildren[nChild], myAiScene, scene, *childNode);
 
@@ -94,12 +96,13 @@ bool Import3D::importNode(aiNode* myAiNode,const aiScene* myAiScene, Scene& scen
 		if(myAiScene->HasMaterials())
 		{
 			int nMaterial = myAiScene->mMeshes[myAiNode->mMeshes[nMeshes]]->mMaterialIndex;
-			//importMaterial(myAiScene->mMaterials[nMaterial], *childMesh);
+			importMaterial(myAiScene->mMaterials[nMaterial], *childMesh);
 		}
 
 		pNode.AddMesh(childMesh);
 		childMesh->SetParent(&pNode);
 	}	
+
 
 	return true;
 
@@ -163,6 +166,42 @@ bool Import3D::importMesh(aiMesh* myAiMeshes, Mesh* mesh)
 	vertices = NULL;
 	delete indices;
 	indices = NULL;
+
+	return true;
+}
+
+bool Import3D::importMaterial(aiMaterial* myMat, Mesh& mesh)
+{
+	aiString aiPath;
+	myMat->Get(AI_MATKEY_TEXTURE(aiTextureType_DIFFUSE, 0), aiPath);
+
+	std::string strAux = "Models/";
+	strAux.append(aiPath.C_Str());
+	Texture texture = _renderer->LoadTexture( strAux.c_str(), 0);
+	mesh.setTexture(texture);
+
+	aiColor4D diffuse;
+	aiReturn di = aiGetMaterialColor(myMat, AI_MATKEY_COLOR_DIFFUSE, &diffuse);
+	
+	aiColor4D ambient;
+	aiReturn am = aiGetMaterialColor(myMat, AI_MATKEY_COLOR_AMBIENT, &ambient);
+
+	aiColor4D specular;
+	aiReturn sp = aiGetMaterialColor(myMat, AI_MATKEY_COLOR_SPECULAR, &specular);
+
+	aiColor4D emissive;
+	aiReturn em = aiGetMaterialColor(myMat, AI_MATKEY_COLOR_EMISSIVE, &emissive);
+
+	if (di == aiReturn_SUCCESS && am == aiReturn_SUCCESS && sp == aiReturn_SUCCESS && em == aiReturn_SUCCESS)
+	{
+		Material *material = new Material();
+		material->setDiffuse(diffuse.r, diffuse.g, diffuse.b, diffuse.a);
+		material->setAmbient(ambient.r, ambient.g, ambient.b, ambient.a);
+		material->setSpecular(specular.r, specular.g, specular.b, specular.a);
+		material->setEmissive(emissive.r, emissive.g, emissive.b, emissive.a);
+
+		mesh.setMaterial(material);
+	}
 
 	return true;
 }

@@ -8,13 +8,15 @@ Entity3D(),
 _worldTransformMatrix(new D3DXMATRIX),
 _AssimpTransformMatrix(new D3DXMATRIX),
 _bone(NULL),
-_currentAnimation(NULL)
+_currentAnimation(NULL),
+_vBB(new D3DXVECTOR3[8])
 {
 	D3DXMatrixIdentity(_worldTransformMatrix);
 	D3DXMatrixIdentity(_AssimpTransformMatrix);
 	iKeyFrame = 0;
 	meshes.clear();
 	childs.clear();
+	_isPlane = false;
 }
 
 Node::~Node()
@@ -44,6 +46,12 @@ Node::~Node()
 
 		delete anim;
 		anim = NULL;
+	}
+
+	if (_bone)
+	{
+		delete _bone;
+		_bone = NULL;
 	}
 
 	_currentAnimation = NULL;
@@ -91,6 +99,16 @@ std::list<Node*> Node::getChilds(){
 
 std::list<Mesh*> Node::getMeshes(){
 	return meshes;
+}
+
+D3DXMATRIX Node::getWorldTransformation()
+{
+	return *_worldTransformMatrix;
+}
+
+D3DXMATRIX Node::getLocalTransformation()
+{
+	return *_AssimpTransformMatrix;
 }
 
 void Node::UpdateTransformation(Matrix transformation, Renderer *renderer)
@@ -145,6 +163,8 @@ void Node::UpdateTransformation(Matrix transformation, Renderer *renderer)
 		}
 	}
 
+	calculateBB();
+
 }
 
 void Node::SetFirstTransform(float a1,float a2,float a3, float a4, 
@@ -182,12 +202,26 @@ void Node::Update(Timer& rkTimer)
 
 void Node::Draw(Renderer& r)
 {
-	D3DXMatrixIdentity(_worldTransformMatrix);
+	//D3DXMatrixIdentity(_worldTransformMatrix);
 	r.setMatrix(World, _worldTransformMatrix);
 	//TODO FLUSH TUM
-	UpdateTransformation(_worldTransformMatrix,&r);
+	//UpdateTransformation(_worldTransformMatrix,&r);
 
 	NodeDraw(&r);
+}
+
+void Node::DrawMeshes(Renderer& pRenderer)
+{
+	D3DXMATRIX identity;
+	D3DXMatrixIdentity(&identity);
+	pRenderer.setMatrix(World, &identity);
+
+	std::list<Mesh*>::iterator iter;
+	for (iter = meshes.begin(); iter != meshes.end(); iter++)
+	{
+		pRenderer.setMatrix(World, _worldTransformMatrix);
+		(*iter)->Draw(pRenderer);
+	}
 }
 
 void Node::NodeDraw(Renderer* renderer)
@@ -215,6 +249,16 @@ void Node::NodeDraw(Renderer* renderer)
 		}
 	}
 	
+}
+
+void Node::isPlane(bool isPlane)
+{
+	_isPlane = isPlane;
+}
+
+bool Node::isPlane()
+{
+	return _isPlane;
 }
 
 void Node::setBone(Bones* tBone)
@@ -267,4 +311,118 @@ bool Node::playAnimation(std::string animName)
 	}
 
 	return found;
+}
+
+void Node::GetBoundings(D3DXVECTOR3* pOutMin, D3DXVECTOR3* pOutMax){
+	*pOutMax = _maxBound;
+	*pOutMin = _minBound;
+}
+
+void Node::calculateBB() {
+
+	if (!meshes.empty()){
+
+		D3DXVECTOR3 vMeshVertices[8];
+		meshes.front()->getTransformedBox(_worldTransformMatrix, vMeshVertices);
+
+		_maxBound.x = vMeshVertices[0].x;
+		_maxBound.y = vMeshVertices[0].y;
+		_maxBound.z = vMeshVertices[0].z;
+
+		_minBound.x = vMeshVertices[0].x;
+		_minBound.y = vMeshVertices[0].y;
+		_minBound.z = vMeshVertices[0].z;
+
+		for (int i = 1; i<8; i++) {
+			if (vMeshVertices[i].x > _maxBound.x)
+				_maxBound.x = vMeshVertices[i].x;
+			else if (vMeshVertices[i].x < _minBound.x)
+				_minBound.x = vMeshVertices[i].x;
+
+			if (vMeshVertices[i].y > _maxBound.y)
+				_maxBound.y = vMeshVertices[i].y;
+			else if (vMeshVertices[i].y < _minBound.y)
+				_minBound.y = vMeshVertices[i].y;
+
+			if (vMeshVertices[i].z > _maxBound.z)
+				_maxBound.z = vMeshVertices[i].z;
+			else if (vMeshVertices[i].z < _minBound.z)
+				_minBound.z = vMeshVertices[i].z;
+		}
+	}
+	else if (!childs.empty()) {
+		childs.front()->GetBoundings(&_minBound, &_maxBound);
+	}
+
+	std::list<Node*>::iterator iter;
+	for (iter = childs.begin(); iter != childs.end(); iter++) {
+		D3DXVECTOR3 vChildMax;
+		D3DXVECTOR3 vChildMin;
+
+		(*iter)->GetBoundings(&vChildMin, &vChildMax);
+
+		if (vChildMax.x > _maxBound.x) {
+			_maxBound.x = vChildMax.x;
+		}
+
+		if (vChildMax.y > _maxBound.y) {
+			_maxBound.y = vChildMax.y;
+		}
+
+		if (vChildMax.z > _maxBound.z) {
+			_maxBound.z = vChildMax.z;
+		}
+
+		if (vChildMin.x < _minBound.x) {
+			_minBound.x = vChildMin.x;
+		}
+
+		if (vChildMin.y < _minBound.y) {
+			_minBound.y = vChildMin.y;
+		}
+
+		if (vChildMin.z < _minBound.z) {
+			_minBound.z = vChildMin.z;
+		}
+	}
+
+	_vBB[0].x = _maxBound.x;
+	_vBB[0].y = _maxBound.y;
+	_vBB[0].z = _maxBound.z;
+
+	_vBB[1].x = _maxBound.x;
+	_vBB[1].y = _minBound.y;
+	_vBB[1].z = _maxBound.z;
+
+	_vBB[2].x = _minBound.x;
+	_vBB[2].y = _minBound.y;
+	_vBB[2].z = _maxBound.z;
+
+	_vBB[3].x = _minBound.x;
+	_vBB[3].y = _maxBound.y;
+	_vBB[3].z = _maxBound.z;
+
+	_vBB[4].x = _maxBound.x;
+	_vBB[4].y = _maxBound.y;
+	_vBB[4].z = _minBound.z;
+
+	_vBB[5].x = _maxBound.x;
+	_vBB[5].y = _minBound.y;
+	_vBB[5].z = _minBound.z;
+
+	_vBB[6].x = _minBound.x;
+	_vBB[6].y = _minBound.y;
+	_vBB[6].z = _minBound.z;
+
+	_vBB[7].x = _minBound.x;
+	_vBB[7].y = _maxBound.y;
+	_vBB[7].z = _minBound.z;
+}
+
+D3DXPLANE Node::GetPlane(){
+	return meshes.front()->GetPlane(_worldTransformMatrix);
+}
+
+D3DXVECTOR3* Node::getBB(){
+	return _vBB;
 }
