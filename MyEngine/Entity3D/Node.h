@@ -3,6 +3,7 @@
 
 #include "Entity3D.h"
 #include "Mesh.h"
+#include "Bones.h"
 #include "Animation3D.h"
 #include <list>
 #include <string>
@@ -36,6 +37,8 @@ namespace Inaba
 									float c1,float c2,float c3,float c4,
 									float d1,float d2,float d3,float d4);
 			void NodeDraw(Renderer* renderer);
+			void setBone(Bones*);
+			Bones* nodeBone();
 			bool playAnimation(std::string);
 			void setAnimation(Animation3D*);
 
@@ -45,6 +48,7 @@ namespace Inaba
 			std::list<Node*> childs;
 			std::list<Mesh*> meshes;
 			std::list<Animation3D*> animations;
+			Bones* _bone;
 			Animation3D* _currentAnimation;
 			int iKeyFrame;
 	};

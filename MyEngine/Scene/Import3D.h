@@ -2,6 +2,9 @@
 #define IMPORT3D_H
 
 #include "../myengine_api.h"
+#include "../Entity3D/Bones.h"
+#include "../Entity3D/BoneInfo.h"
+#include <map>
 #include <string>
 #include <fstream>
 #include "../Assimp32/include/Importer.hpp"
@@ -29,12 +32,14 @@ namespace Inaba
 
 		public:
 			static Import3D* GetInstance();
+			std::map<std::string, Bones*> _boneMap;
 			void setRenderer(Renderer*);
 			bool importScene(const std::string&,Scene&,Node&);
 			bool importNode(aiNode*,const aiScene*,Scene&,Node&);
 			bool importMesh(aiMesh*, Mesh*);
 			bool importAnimation(aiAnimation*,const aiScene&, Animation3D&);
-			bool importBone(aiBone*); 
+			bool importBone(aiBone*, Mesh*); 
+			void addBoneNode(Node*);
 			void quaternionToEuler(float qX,float qY,float qZ,float qW,float& rotX,float& rotY,float& rotZ);
 	};
 }

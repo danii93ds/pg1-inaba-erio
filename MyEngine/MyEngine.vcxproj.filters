@@ -117,6 +117,9 @@
     <ClCompile Include="Entity3D\Bones.cpp">
       <Filter>Entity3D</Filter>
     </ClCompile>
+    <ClCompile Include="Entity3D\BoneInfo.cpp">
+      <Filter>Entity3D</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Entity2D\Animation.h">
@@ -204,6 +207,9 @@
       <Filter>Entity3D</Filter>
     </ClInclude>
     <ClInclude Include="Entity3D\Bones.h">
+      <Filter>Entity3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Entity3D\BoneInfo.h">
       <Filter>Entity3D</Filter>
     </ClInclude>
   </ItemGroup>

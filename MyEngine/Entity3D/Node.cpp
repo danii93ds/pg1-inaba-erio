@@ -7,11 +7,13 @@ Node::Node():
 Entity3D(),
 _worldTransformMatrix(new D3DXMATRIX),
 _AssimpTransformMatrix(new D3DXMATRIX),
+_bone(NULL),
 _currentAnimation(NULL)
 {
 	D3DXMatrixIdentity(_worldTransformMatrix);
 	D3DXMatrixIdentity(_AssimpTransformMatrix);
 	iKeyFrame = 0;
+	meshes.clear();
 	childs.clear();
 }
 
@@ -130,6 +132,10 @@ void Node::UpdateTransformation(Matrix transformation, Renderer *renderer)
 
 	D3DXMatrixMultiply(_worldTransformMatrix,&_localtransformation,transformation);
 
+	if(_bone != NULL){
+		_bone->setTransformationMatrix(*_worldTransformMatrix);
+	}
+
 	if(childs.size())
 	{
 		std::list<Node*>::iterator iter;
@@ -186,18 +192,39 @@ void Node::Draw(Renderer& r)
 
 void Node::NodeDraw(Renderer* renderer)
 {
-	std::list<Mesh*>::iterator iter;
-	for(iter = meshes.begin(); iter != meshes.end(); iter++)
+	if (_bone == NULL) 
 	{
-		renderer->setMatrix(World, _worldTransformMatrix);
-		(*iter)->Draw(*renderer);
-	}
+		std::list<Mesh*>::iterator iter;
+		for(iter = meshes.begin(); iter != meshes.end(); iter++)
+		{
+			if ((*iter)->getBones().empty())
+			{
+				renderer->setMatrix(World, _worldTransformMatrix);
+				(*iter)->Draw(*renderer);
+			}
+			else
+			{
+				(*iter)->drawAnimation(*renderer);
+			}
+		}
 
-	std::list<Node*>::iterator iter2;
-	for(iter2 = childs.begin(); iter2 != childs.end(); iter2++)
-	{
-		(*iter2)->NodeDraw(renderer);
+		std::list<Node*>::iterator iter2;
+		for(iter2 = childs.begin(); iter2 != childs.end(); iter2++)
+		{
+			(*iter2)->NodeDraw(renderer);
+		}
 	}
+	
+}
+
+void Node::setBone(Bones* tBone)
+{
+	_bone = tBone;
+}
+
+Bones* Node::nodeBone()
+{
+	return _bone;
 }
 
 void Node::setAnimation(Animation3D* animation)

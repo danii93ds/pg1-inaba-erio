@@ -44,15 +44,14 @@ bool Scene3D::Init(Inaba::Renderer& renderer)
 {   
 
 	_Node = new Inaba::Node();
-	_Node->setName("Huesos");
 	
-	Inaba::Import3D::GetInstance()->importScene("tank.x",*this, *_Node);
+	Inaba::Import3D::GetInstance()->importScene("tiny.x",*this, *_Node);
 
-	//_Node->setScale(1,1,1);
-	//_Node->setPos(0,0,100);
-	//_Node->setRotation(0,0,0);
+	_Node->setScale(0.2f,0.2f,0.2f);
+	_Node->setPos(0,0,100);
+	_Node->setRotation(-90,0,135);
 	
-	//_Node->playAnimation("Die");
+	_Node->playAnimation("");
 
 	return true;
 }

@@ -82,7 +82,7 @@ bool Renderer::Init(HWND hWnd)
 
 	_d3ddev->SetRenderState(D3DRS_LIGHTING, FALSE); // setea el uso de luz o no. 
 
-	_d3ddev->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW); 
+	_d3ddev->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW); 
 	_d3ddev->SetRenderState(D3DRS_ZENABLE, TRUE);
 	_d3ddev->SetRenderState(D3DRS_ALPHABLENDENABLE,TRUE); //activa alpha
 	_d3ddev->SetRenderState(D3DRS_BLENDOP,D3DBLENDOP_ADD);

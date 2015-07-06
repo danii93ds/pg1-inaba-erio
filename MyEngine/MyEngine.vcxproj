@@ -18,6 +18,7 @@
     <ClCompile Include="Entity2D\Quad.cpp" />
     <ClCompile Include="Entity2D\Sprite.cpp" />
     <ClCompile Include="Entity3D\Animation3D.cpp" />
+    <ClCompile Include="Entity3D\BoneInfo.cpp" />
     <ClCompile Include="Entity3D\Bones.cpp" />
     <ClCompile Include="Entity3D\Mesh.cpp" />
     <ClCompile Include="Entity3D\Entity3D.cpp" />
@@ -48,6 +49,7 @@
     <ClInclude Include="Entity2D\Quad.h" />
     <ClInclude Include="Entity2D\Sprite.h" />
     <ClInclude Include="Entity3D\Animation3D.h" />
+    <ClInclude Include="Entity3D\BoneInfo.h" />
     <ClInclude Include="Entity3D\Bones.h" />
     <ClInclude Include="Entity3D\Mesh.h" />
     <ClInclude Include="Entity3D\Entity3D.h" />

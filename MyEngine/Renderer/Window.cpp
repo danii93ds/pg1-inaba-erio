@@ -26,7 +26,7 @@ bool Window::Create(unsigned int w, unsigned int h)
 	if(!RegisterClass(_wc)){ return false;}
 	
 	_hWnd = CreateWindow(_wc->lpszClassName,
-						"Create Window",
+						"PG Engine",
 						WS_OVERLAPPEDWINDOW|WS_VISIBLE,
 						0,0,w+8,h+30,0,0,_hInstance,NULL);
 	 if (_hWnd != NULL)
